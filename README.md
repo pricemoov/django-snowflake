@@ -14,6 +14,7 @@ DATABASES = {
         'PASSWORD': 'my_password',
         'ACCOUNT': 'my_snowflake_Acc.eu-west1',
         'DATABASE': 'SNOWFLAKE_SAMPLE_DATA',
+        'WAREHOUSE': 'WAREHOUSE_BACKEND',
     }
 }
 ```
@@ -44,3 +45,8 @@ Customer.objects.filter(C_NAME__startwith='Custo')
 Customer.objects.all().aggregate(Avg('C_CUSTKEY'))
 #TODO Need more testing
 ```
+
+## Next steps
+
+Implements missing operations in operations.py using other SQL dialect as a base.
+[Postgres operations can be found here] (https://github.com/django/django/blob/ca9872905559026af82000e46cde6f7dedc897b6/django/db/backends/postgresql/operations.py)

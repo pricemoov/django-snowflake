@@ -106,8 +106,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             conn_params['password'] = settings_dict['PASSWORD']
         if settings_dict['ACCOUNT']:
             conn_params['account'] = settings_dict['ACCOUNT']
-        # if settings_dict['WAREHOUSE']:
-        #     conn_params['warehouse'] = settings_dict['WAREHOUSE']
+        if settings_dict['WAREHOUSE']:
+            conn_params['warehouse'] = settings_dict['WAREHOUSE']
         if settings_dict['DATABASE']:
             conn_params['database'] = settings_dict['DATABASE']
         # if settings_dict['SCHEMA']:
@@ -139,9 +139,4 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             self.connection.autocommit(autocommit)
 
     def is_usable(self):
-        try:
-            self.connection.ping()
-        except Database.Error:
-            return False
-        else:
-            return True
+        return False # TODO: We should be able to reuse connections somehow
