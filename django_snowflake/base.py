@@ -99,7 +99,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     def get_connection_params(self):
         settings_dict = self.settings_dict
 
-        conn_params = {}
+        conn_params = {'session_parameters': {}}
         if settings_dict['USER']:
             conn_params['user'] = settings_dict['USER']
         if settings_dict['PASSWORD']:
@@ -110,8 +110,10 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             conn_params['warehouse'] = settings_dict['WAREHOUSE']
         if settings_dict['DATABASE']:
             conn_params['database'] = settings_dict['DATABASE']
-        # if settings_dict['SCHEMA']:
-        #     conn_params['schema'] = settings_dict['SCHEMA']
+        if settings_dict['SCHEMA']:
+            conn_params['schema'] = settings_dict['SCHEMA']
+        if settings_dict['ROLE']:
+            conn_params['session_parameters']['role'] = settings_dict['ROLE']
 
         return conn_params
 
