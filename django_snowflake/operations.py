@@ -8,7 +8,7 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def _convert_field_to_tz(self, field_name, tzname):
         if settings.USE_TZ:
-            field_name = "CONVERT_TIMEZONE('%s', 'UTC', %s)" % (tzname, field_name)
+            field_name = "CONVERT_TIMEZONE('UTC', '%s', %s)" % (tzname, field_name)
         return field_name
 
     def datetime_extract_sql(self, lookup_type, field_name, tzname):
