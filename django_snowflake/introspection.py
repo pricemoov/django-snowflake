@@ -3,20 +3,20 @@ from collections import namedtuple
 from django.db.backends.base.introspection import (
     BaseDatabaseIntrospection, FieldInfo as BaseFieldInfo, TableInfo,
 )
-from django.utils.regex_helper import _lazy_re_compile
+# from django.utils.regex_helper import _lazy_re_compile
 
 FieldInfo = namedtuple('FieldInfo', BaseFieldInfo._fields + ('pk',))
-collation_re = _lazy_re_compile(r"^VARCHAR\(\d+\) COLLATE '([\w+\-]+)'$")
-field_size_re = _lazy_re_compile(r'^[A-Z]+\((\d+)\)')
-precision_and_scale_re = _lazy_re_compile(r'^NUMBER\((\d+),(\d+)\)$')
+# collation_re = _lazy_re_compile(r"^VARCHAR\(\d+\) COLLATE '([\w+\-]+)'$")
+# field_size_re = _lazy_re_compile(r'^[A-Z]+\((\d+)\)')
+# precision_and_scale_re = _lazy_re_compile(r'^NUMBER\((\d+),(\d+)\)$')
 
 
-def get_collation(name):
-    """
-    Return the collation from a "VARCHAR(11) COLLATE 'collation'" type name.
-    """
-    m = collation_re.search(name)
-    return m[1] if m else None
+# def get_collation(name):
+#     """
+#     Return the collation from a "VARCHAR(11) COLLATE 'collation'" type name.
+#     """
+#     m = collation_re.search(name)
+#     return m[1] if m else None
 
 
 def get_data_type(name):
@@ -24,19 +24,19 @@ def get_data_type(name):
     return name.split('(', 1)[0]
 
 
-def get_field_size(name):
-    """Extract the size number from a VARCHAR(11) type name."""
-    m = field_size_re.search(name)
-    return int(m[1]) if m else None
+# def get_field_size(name):
+#     """Extract the size number from a VARCHAR(11) type name."""
+#     m = field_size_re.search(name)
+#     return int(m[1]) if m else None
 
 
-def get_precision_and_scale(name):
-    """
-    Return the precision (first number) and scale (second number) from a
-    NUMBER(38,0) type name.
-    """
-    m = precision_and_scale_re.search(name)
-    return (int(m[1]), int(m[2])) if m else (None, None)
+# def get_precision_and_scale(name):
+#     """
+#     Return the precision (first number) and scale (second number) from a
+#     NUMBER(38,0) type name.
+#     """
+#     m = precision_and_scale_re.search(name)
+#     return (int(m[1]), int(m[2])) if m else (None, None)
 
 
 class DatabaseIntrospection(BaseDatabaseIntrospection):
@@ -148,20 +148,28 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     def get_table_description(self, cursor, table_name):
         cursor.execute('DESCRIBE TABLE %s' % self.connection.ops.quote_name(table_name))
         table_info = cursor.fetchall()
+#         return [
+#             FieldInfo(
+#                 # name, type_code, display_size,
+#                 self.identifier_converter(name), get_data_type(data_type), None,
+#                 # internal_size, precision, scale,
+#                 get_field_size(data_type), *get_precision_and_scale(data_type),
+#                 # null_ok, default, collation, pk,
+#                 null == 'Y', default, get_collation(data_type), pk == 'Y',
+#             )
+#             for (
+#                 name, data_type, kind, null, default, pk, unique_key, check,
+#                 expression, comment, policy_name,
+#             ) in table_info
+#         ]
         return [
-            FieldInfo(
-                # name, type_code, display_size,
-                self.identifier_converter(name), get_data_type(data_type), None,
-                # internal_size, precision, scale,
-                get_field_size(data_type), *get_precision_and_scale(data_type),
-                # null_ok, default, collation, pk,
-                null == 'Y', default, get_collation(data_type), pk == 'Y',
-            )
-            for (
-                name, data_type, kind, null, default, pk, unique_key, check,
-                expression, comment, policy_name,
-            ) in table_info
+            FieldInfo(*(
+                (force_text(line[0]),) +
+                line[1:6] +
+                (field_map[force_text(line[0])][0] == 'YES', field_map[force_text(line[0])][1])
+            )) for line in cursor.description
         ]
+
 
     def identifier_converter(self, name):
         # Add quotes around Snowflake generated constraint names like
