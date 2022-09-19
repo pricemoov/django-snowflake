@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import DatabaseError as WrappedDatabaseError, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.utils.asyncio import async_unsafe
+# from django.utils.asyncio import async_unsafe
 
 import snowflake.connector as Database
 
@@ -18,7 +18,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = 'snowflake'
     display_name = 'Snowflake'
     data_types = {
-        'AutoField': 'INTEGER',
+        'AutoField': 'INTEGER AUTOINCREMENT',
         'BigAutoField': 'BIGINT',
         'BinaryField': 'BINARY',
         'BooleanField': 'BOOLEAN',
@@ -117,7 +117,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
         return conn_params
 
-    @async_unsafe
+#     @async_unsafe
     def get_new_connection(self, conn_params):
         connection = Database.connect(**conn_params)
         return connection
@@ -125,7 +125,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     def init_connection_state(self):
         pass
 
-    @async_unsafe
+#     @async_unsafe
     def create_cursor(self, name=None):
         cursor = self.connection.cursor()
         return cursor
